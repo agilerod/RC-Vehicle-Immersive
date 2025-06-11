@@ -1,95 +1,100 @@
-# RC-Vehicle-Immersive
+# 🚗 RC Vehicle Immersive Control System
 
-Sistema de conducción inmersiva para vehículo RC (Arrma Senton 3S) utilizando Jetson Nano Developer Kit.
+Este proyecto busca crear una experiencia inmersiva de conducción para un auto RC, integrando Jetson Nano, Arduino Nano ESP32, y un visor VR (Oculus/Meta Quest), con control mediante un volante Logitech G29 o similar.
 
-## Descripción
+## 🎯 Objetivo
 
-Este proyecto implementa un sistema de control inmersivo para un vehículo RC, permitiendo:
-- Control mediante joystick desde una laptop
-- Transmisión de video en tiempo real desde la Jetson Nano
-- Control de motores y servos mediante Arduino Nano ESP32
-- Preparado para integración futura con VR (Oculus)
+Desarrollar un sistema de control de bajo costo y baja latencia que permita:
 
-## Estructura del Proyecto
+* Transmitir video en tiempo real desde el auto (Jetson Nano + cámara)
+* Controlar motores vía ESP32 mediante comandos UART desde Jetson
+* Visualizar la conducción con una experiencia inmersiva usando VR
+* Integrar joystick de conducción real (volante + pedales) al sistema
+
+## 🧩 Componentes del sistema
+
+| Componente        | Descripción                                       |
+| ----------------- | ------------------------------------------------- |
+| Jetson Nano       | Procesamiento de video y comunicación UDP         |
+| ESP32 Nano        | Control de motores, WiFi, OTA updates             |
+| Cámara RPi v2     | Cámara para Jetson con streaming RTSP             |
+| Joystick G29      | Input del usuario (aceleración, dirección)        |
+| Laptop            | Visualización y control remoto                    |
+
+## 🗂️ Estructura del repositorio
 
 ```
 RC-Vehicle-Immersive/
-├── laptop/                 # Código para la laptop controladora
-│   ├── joystick_control/   # Control de joystick y transmisión UDP
-│   └── video_viewer/       # Visualización de stream de video
-├── jetson/                 # Código para la Jetson Nano
-│   ├── udp_receiver/       # Recepción de comandos UDP
-│   └── video_streaming/    # Transmisión de video
-├── firmware/               # Código para Arduino Nano ESP32
-│   └── motor_control/      # Control de motores y servos
-├── unity-vr-interface/     # Futura integración con Unity y VR
-├── docs/                   # Documentación y esquemas
-│   ├── architecture/       # Diagramas de arquitectura
-│   └── hardware/          # Especificaciones de hardware
-└── hardware/              # Especificaciones de conexiones
+├── docs/                    # Documentación del sistema
+│   ├── architecture/        # Diagramas de arquitectura
+│   ├── hardware/           # Especificaciones de hardware
+│   └── startup_guide.md    # Guía de inicio paso a paso
+├── firmware/               # Código para Arduino
+│   └── motor_control/      # Control de motores ESP32
+├── jetson/                 # Código para Jetson Nano
+│   ├── udp_receiver/       # Receptor de comandos UDP
+│   └── video_streaming/    # Streaming de video RTSP
+├── laptop/                 # Código para laptop
+│   ├── joystick_control/   # Control con G29
+│   ├── video_viewer/       # Visor de video
+│   └── requirements.txt    # Dependencias Python
+├── hardware/              # Esquemáticos y conexiones
+├── unity-vr-interface/    # Proyecto Unity (opcional)
+└── tools/                 # Herramientas de desarrollo
 ```
 
-## Requisitos de Hardware
+## 🚀 Cómo comenzar
 
-- Jetson Nano Developer Kit
-- Cámara Raspberry Pi v2
-- Arduino Nano ESP32
-- Joystick Logitech G29
-- Vehículo RC Arrma Senton 3S
-- Laptop con WiFi
-- Oculus VR (futuro)
+### Requisitos mínimos
 
-## Requisitos de Software
+* Jetson Nano con JetPack 4.6+
+* Arduino Nano ESP32
+* Cámara RPi v2
+* Control Logitech G29
+* Conexión WiFi compartida
 
-### Laptop
-- Python 3.8+
-- Pygame
-- VLC o similar para visualización de video
+### Instalación
 
-### Jetson Nano
-- JetPack 4.6+
-- GStreamer
-- Python 3.8+
-
-### Arduino
-- Arduino IDE
-- ESP32 Board Support
-
-## Configuración
-
-1. Configurar red WiFi entre Jetson y laptop
-2. Instalar dependencias en cada dispositivo
-3. Configurar direcciones IP en los scripts
-4. Conectar hardware según diagramas en docs/hardware
-
-## Uso
-
-1. Iniciar transmisión de video en Jetson:
+1. Clona el repositorio:
    ```bash
-   cd jetson/video_streaming
-   ./stream_camera.sh
+   git clone https://github.com/agilerod/RC-Vehicle-Immersive.git
+   cd RC-Vehicle-Immersive
    ```
 
-2. Iniciar control de joystick en laptop:
-   ```bash
-   cd laptop/joystick_control
-   python send_joystick.py
-   ```
+2. Configura el Arduino:
+   - Instala el firmware desde `firmware/motor_control/`
+   - Configura las credenciales WiFi en `config.h`
 
-3. Iniciar receptor UDP en Jetson:
-   ```bash
-   cd jetson/udp_receiver
-   python udp_receiver.py
-   ```
+3. Configura la Jetson:
+   - Instala las dependencias necesarias
+   - Configura la cámara CSI
+   - Ajusta la IP en los scripts
 
-## Contribución
+4. Configura la laptop:
+   - Instala las dependencias: `pip install -r laptop/requirements.txt`
+   - Configura la IP de la Jetson en los scripts
 
-1. Fork el repositorio
-2. Crear rama para feature (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir Pull Request
+### Uso
 
-## Licencia
+Consulta la [guía de inicio](docs/startup_guide.md) para instrucciones detalladas sobre cómo poner en funcionamiento el sistema.
+
+## 🔧 Mantenimiento
+
+* Verifica regularmente las conexiones
+* Mantén el firmware actualizado
+* Limpia la lente de la cámara
+* Monitorea la temperatura de la Jetson
+
+## 📝 Licencia
 
 Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
+
+## 🤝 Contribuciones
+
+Las contribuciones son bienvenidas. Por favor, lee [CONTRIBUTING.md](CONTRIBUTING.md) para detalles sobre nuestro código de conducta y el proceso para enviarnos pull requests.
+
+## 📫 Contacto
+
+Rodrigo Bermúdez - [@agilerod](https://github.com/agilerod)
+
+Link del proyecto: [https://github.com/agilerod/RC-Vehicle-Immersive](https://github.com/agilerod/RC-Vehicle-Immersive)
