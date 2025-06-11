@@ -1,0 +1,106 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.project
+.pydevproject
+.settings/
+
+# Unity
+unity-vr-interface/[Ll]ibrary/
+unity-vr-interface/[Tt]emp/
+unity-vr-interface/[Oo]bj/
+unity-vr-interface/[Bb]uild/
+unity-vr-interface/[Bb]uilds/
+unity-vr-interface/[Ll]ogs/
+unity-vr-interface/[Uu]ser[Ss]ettings/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Arduino
+firmware/*.hex
+firmware/*/config.h
+firmware/*/secrets.h
+firmware/*/credentials.h
+firmware/*/build/
+firmware/*/.pio/
+firmware/*/.vscode/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.h264
+*.h265
+*.rtsp
+*.sdp
+*.webrtc
+
+# Configuration files with sensitive data
+**/config.json
+**/secrets.json
+**/api_keys.h
+**/credentials.json
+**/settings.json
+**/private.key
+**/public.key
+**/cert.pem
+**/key.pem 
