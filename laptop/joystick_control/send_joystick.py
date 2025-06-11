@@ -12,102 +12,48 @@ import sys
 from typing import Tuple, Optional
 
 # Configuration
-UDP_IP = "192.168.1.100"  # Arduino IP address
-UDP_PORT = 8888
-JOYSTICK_DEADZONE = 0.1
-STEERING_SENSITIVITY = 1.0
+JETSON_IP = '192.168.68.110'
+CONTROL_PORT = 5005
 
-class JoystickController:
-    def __init__(self, ip: str, port: int):
-        """Initialize the joystick controller."""
-        self.ip = ip
-        self.port = port
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        
-        # Initialize pygame
-        pygame.init()
-        pygame.joystick.init()
-        
-        # Check for joystick
-        if pygame.joystick.get_count() == 0:
-            raise RuntimeError("No joystick found!")
-        
-        self.joystick = pygame.joystick.Joystick(0)
-        self.joystick.init()
-        print(f"Initialized {self.joystick.get_name()}")
-        
-        # Control variables
-        self.running = True
-        self.last_angle = 90  # Center position
-        
-    def map_joystick_to_angle(self, x: float) -> int:
-        """Map joystick X position to steering angle (0-180)."""
-        # Apply deadzone
-        if abs(x) < JOYSTICK_DEADZONE:
-            return 90
-            
-        # Map -1 to 1 range to 0 to 180
-        angle = 90 + (x * 90 * STEERING_SENSITIVITY)
-        return max(0, min(180, int(angle)))
-    
-    def send_command(self, angle: int) -> None:
-        """Send steering command to Arduino."""
-        command = {
-            "command": "steer",
-            "angle": angle,
-            "timestamp": int(time.time() * 1000)
-        }
+# Inicializar conexión TCP a Jetson
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((JETSON_IP, CONTROL_PORT))
+
+# Inicializar pygame y joystick
+pygame.init()
+pygame.joystick.init()
+joystick = pygame.joystick.Joystick(0)
+joystick.init()
+
+# Loop principal rápido
+def capture_and_send():
+    while True:
+        pygame.event.pump()
+
+        steering_axis = joystick.get_axis(0)
+        accel_axis = joystick.get_axis(2)
+        brake_axis = joystick.get_axis(3)
+        clutch_axis = joystick.get_axis(1)
+        boton_freno_mano = joystick.get_button(5)
+
+        angulo_servo = int((steering_axis + 1) * 90)     # 0 a 180
+        acelerador = int((1 - accel_axis) * 100)         # 0 a 100
+        freno = int((1 - brake_axis) * 100)              # 0 a 100
+
+        # Formato de mensaje
+        message = f"{angulo_servo},{acelerador},{freno},{boton_freno_mano}\n"
         try:
-            self.sock.sendto(json.dumps(command).encode(), (self.ip, self.port))
-        except Exception as e:
-            print(f"Error sending command: {e}")
-    
-    def handle_events(self) -> None:
-        """Handle pygame events."""
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = False
-            elif event.type == pygame.JOYBUTTONDOWN:
-                if event.button == 0:  # A button
-                    self.send_command(90)  # Center
-                elif event.button == 1:  # B button
-                    self.running = False
-    
-    def run(self) -> None:
-        """Main control loop."""
-        print("Starting joystick control...")
-        print("Press A to center steering")
-        print("Press B to exit")
-        
-        try:
-            while self.running:
-                self.handle_events()
-                
-                # Get joystick position
-                x = self.joystick.get_axis(0)  # Left stick X
-                angle = self.map_joystick_to_angle(x)
-                
-                # Only send if angle changed
-                if angle != self.last_angle:
-                    self.send_command(angle)
-                    self.last_angle = angle
-                    print(f"Steering: {angle}°")
-                
-                time.sleep(0.05)  # 20Hz update rate
-                
-        except KeyboardInterrupt:
-            print("\nStopping...")
-        finally:
-            # Center steering before exit
-            self.send_command(90)
-            pygame.quit()
-            self.sock.close()
+            sock.sendall(message.encode())
+        except BrokenPipeError:
+            print("Conexión con Jetson perdida")
+            break
+
+        time.sleep(0.01)  # Latencia mínima aceptable (ajustable)
 
 def main():
     """Main entry point."""
     try:
-        controller = JoystickController(UDP_IP, UDP_PORT)
-        controller.run()
+        capture_and_send()
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)

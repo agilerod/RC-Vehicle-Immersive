@@ -6,7 +6,7 @@ Esta guía detalla el proceso paso a paso para iniciar y verificar el sistema RC
 
 ### Hardware
 1. Arduino Nano ESP32 con firmware instalado
-2. Joystick compatible con Windows
+2. Joystick compatible con Windows (Logitech G29 o similar)
 3. Raspberry Pi Camera v2 con interfaz CSI
 4. Jetson Nano/Orin con sistema operativo instalado
 5. Laptop con Windows 10/11
@@ -18,17 +18,24 @@ Esta guía detalla el proceso paso a paso para iniciar y verificar el sistema RC
 ### Software
 1. Python 3.8+ instalado en laptop y Jetson
 2. Dependencias instaladas:
-   - En laptop: `pip install -r laptop/requirements.txt`
-   - En Jetson: `pip install -r jetson/requirements.txt`
+   - En laptop: 
+     ```bash
+     pip install pygame
+     pip install -r laptop/requirements.txt
+     ```
+   - En Jetson: 
+     ```bash
+     pip install -r jetson/requirements.txt
+     ```
 3. Firmware Arduino actualizado
 4. Conexión WiFi estable
 
 ### Network Configuration
-- Jetson IP: 192.168.1.100 (static)
-- Laptop IP: 192.168.1.101 (static)
-- Arduino IP: 192.168.1.102 (static)
+- Jetson IP: 192.168.68.110 (static)
+- Laptop IP: 192.168.68.xxx (static)
+- Arduino IP: 192.168.68.xxx (static)
 - Subnet: 255.255.255.0
-- Gateway: 192.168.1.1
+- Gateway: 192.168.68.1
 
 ## Secuencia de Inicio
 
@@ -62,6 +69,7 @@ Esta guía detalla el proceso paso a paso para iniciar y verificar el sistema RC
 1. Abrir terminal en directorio laptop
 2. Instalar requerimientos:
    ```bash
+   pip install pygame
    pip install -r requirements.txt
    ```
 3. Iniciar visor de video:
@@ -72,6 +80,14 @@ Esta guía detalla el proceso paso a paso para iniciar y verificar el sistema RC
    ```bash
    python send_joystick.py
    ```
+   - El script se conectará automáticamente al Jetson
+   - Verificar que el joystick sea detectado
+   - Los controles son:
+     - Eje X (0): Dirección (0-180°)
+     - Eje Y (1): Embrague (0-100%)
+     - Eje Z (2): Acelerador (0-100%)
+     - Eje R (3): Freno (0-100%)
+     - Botón 5: Freno de mano
 
 ### 4. Verificación del Sistema
 1. Revisar stream de video:
@@ -79,7 +95,8 @@ Esta guía detalla el proceso paso a paso para iniciar y verificar el sistema RC
    - Sin retraso significativo
    - Calidad de imagen clara
 2. Probar joystick:
-   - Mover joystick
+   - Mover joystick para dirección
+   - Probar acelerador y freno
    - Verificar respuesta LED Arduino
    - Revisar movimiento del servo
 3. Verificar Arduino:
@@ -108,9 +125,9 @@ Esta guía detalla el proceso paso a paso para iniciar y verificar el sistema RC
 1. Joystick no detectado:
    - Revisar conexión USB
    - Verificar que joystick es reconocido por OS
-   - Revisar paquete Python inputs
+   - Revisar instalación de pygame
 2. Sin respuesta del vehículo:
-   - Verificar conexión UDP
+   - Verificar conexión TCP con Jetson
    - Revisar LED de estado Arduino
    - Verificar conexiones del servo
 3. Movimiento errático:
