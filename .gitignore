@@ -1,0 +1,96 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.project
+.pydevproject
+.settings/
+
+# Unity
+unity-vr-interface/[Ll]ibrary/
+unity-vr-interface/[Tt]emp/
+unity-vr-interface/[Oo]bj/
+unity-vr-interface/[Bb]uild/
+unity-vr-interface/[Bb]uilds/
+unity-vr-interface/[Ll]ogs/
+unity-vr-interface/[Uu]ser[Ss]ettings/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Arduino
+firmware/*.hex
+firmware/*.elf
+firmware/*.bin
+firmware/build/
+firmware/*/config.h
+firmware/*/secrets.h
+firmware/*/credentials.h
+
+# Logs
+*.log
+logs/
+log/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.h264
+*.rtp
+
+# Configuration files with sensitive data
+**/config.json
+**/secrets.json
+**/credentials.json
+**/wifi_config.h
+**/api_keys.h
