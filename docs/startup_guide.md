@@ -7,10 +7,13 @@ Esta guía detalla el proceso paso a paso para iniciar y verificar el sistema RC
 ### Hardware
 1. Arduino Nano ESP32 con firmware instalado
 2. Joystick compatible con Windows
-3. Cámara USB conectada al Jetson
+3. Raspberry Pi Camera v2 con interfaz CSI
 4. Jetson Nano/Orin con sistema operativo instalado
 5. Laptop con Windows 10/11
-6. Red WiFi configurada
+6. Cable CSI para la cámara
+7. Cable USB-C para Arduino
+8. Fuente de alimentación para Arduino
+9. Red WiFi configurada
 
 ### Software
 1. Python 3.8+ instalado en laptop y Jetson
@@ -20,127 +23,152 @@ Esta guía detalla el proceso paso a paso para iniciar y verificar el sistema RC
 3. Firmware Arduino actualizado
 4. Conexión WiFi estable
 
+### Network Configuration
+- Jetson IP: 192.168.1.100 (static)
+- Laptop IP: 192.168.1.101 (static)
+- Arduino IP: 192.168.1.102 (static)
+- Subnet: 255.255.255.0
+- Gateway: 192.168.1.1
+
 ## Secuencia de Inicio
 
 ### 1. Preparación del Arduino
-1. Conectar el Arduino a la fuente de alimentación
-2. Verificar que el LED de estado parpadee durante el inicio
-3. Esperar a que el LED se mantenga encendido (indica conexión WiFi)
-4. Anotar la dirección IP del Arduino (mostrada en el monitor serial)
+1. Conectar Arduino Nano ESP32 a laptop vía USB-C
+2. Abrir Arduino IDE o PlatformIO
+3. Cargar motor_control.ino
+4. Verificar credenciales WiFi en config.h
+5. Subir firmware
+6. Verificar LED de estado:
+   - Fijo: Listo
+   - Parpadeo: Conectando WiFi
+   - Parpadeo rápido: Error
 
-### 2. Preparación del Jetson
-1. Encender el Jetson
-2. Conectar la cámara USB
-3. Verificar que la cámara sea detectada:
+### 2. Configuración del Jetson
+1. Encender dispositivo Jetson
+2. Conectar Raspberry Pi Camera v2 vía interfaz CSI
+3. Verificar conexión de cámara:
    ```bash
-   ls /dev/video*
+   v4l2-ctl --list-devices
    ```
-4. Configurar la dirección IP del Jetson:
-   - Editar `jetson/video_streaming/video_streamer.py`
-   - Actualizar `UDP_IP` con la dirección IP de la laptop
-   - Actualizar `UDP_PORT` si es necesario
-
-### 3. Preparación de la Laptop
-1. Configurar el control del joystick:
-   - Editar `laptop/joystick_control/send_joystick.py`
-   - Actualizar `UDP_IP` con la dirección IP del Jetson
-   - Actualizar `UDP_PORT` si es necesario
-
-2. Configurar el visor de video:
-   - Editar `laptop/video_viewer/view_stream.py`
-   - Verificar que `UDP_PORT` coincida con el del Jetson
-
-## Verificación del Sistema
-
-### 1. Iniciar el Video Stream
-1. En el Jetson, ejecutar:
+4. Iniciar streaming de video:
    ```bash
-   cd jetson/video_streaming
-   python video_streamer.py
+   python3 video_streamer.py
    ```
-2. Verificar que no haya errores de conexión
-3. Confirmar que la cámara esté capturando video
+5. Verificar que el stream está activo:
+   - Revisar salida de terminal por "Streaming started"
+   - Verificar que puerto UDP 5000 está abierto
 
-### 2. Iniciar el Visor de Video
-1. En la laptop, ejecutar:
+### 3. Configuración de Laptop
+1. Abrir terminal en directorio laptop
+2. Instalar requerimientos:
    ```bash
-   cd laptop/video_viewer
+   pip install -r requirements.txt
+   ```
+3. Iniciar visor de video:
+   ```bash
    python view_stream.py
    ```
-2. Verificar que se muestre la ventana del video
-3. Confirmar que el FPS sea estable
-
-### 3. Iniciar el Control del Joystick
-1. En la laptop, ejecutar:
+4. Iniciar control de joystick:
    ```bash
-   cd laptop/joystick_control
    python send_joystick.py
    ```
-2. Verificar que el joystick sea detectado
-3. Probar los controles:
-   - Mover el joystick izquierdo para dirección
-   - Presionar A para centrar
-   - Presionar B para salir
+
+### 4. Verificación del Sistema
+1. Revisar stream de video:
+   - Ventana debe mostrar feed en vivo
+   - Sin retraso significativo
+   - Calidad de imagen clara
+2. Probar joystick:
+   - Mover joystick
+   - Verificar respuesta LED Arduino
+   - Revisar movimiento del servo
+3. Verificar Arduino:
+   - LED de estado fijo
+   - Servo responde a comandos
+   - Sin mensajes de error en monitor serial
 
 ## Solución de Problemas
 
-### 1. Problemas de Video
-- Verificar conexión de la cámara
-- Comprobar permisos de acceso
-- Revisar configuración de resolución
-- Verificar ancho de banda de la red
+### Problemas de Video
+1. Sin feed de video:
+   - Revisar conexión CSI
+   - Verificar que cámara está habilitada en Jetson
+   - Revisar conectividad de red
+   - Verificar puerto UDP 5000
+2. Mala calidad de video:
+   - Revisar cable CSI por daños
+   - Verificar enfoque de cámara
+   - Revisar ancho de banda de red
+3. Alta latencia:
+   - Reducir resolución de video
+   - Revisar congestión de red
+   - Verificar rendimiento Jetson
 
-### 2. Problemas de Control
-- Verificar conexión del joystick
-- Comprobar configuración de IP
-- Revisar puertos UDP
-- Verificar conexión WiFi
+### Problemas de Control
+1. Joystick no detectado:
+   - Revisar conexión USB
+   - Verificar que joystick es reconocido por OS
+   - Revisar paquete Python inputs
+2. Sin respuesta del vehículo:
+   - Verificar conexión UDP
+   - Revisar LED de estado Arduino
+   - Verificar conexiones del servo
+3. Movimiento errático:
+   - Revisar calibración del joystick
+   - Verificar límites del servo
+   - Revisar por interferencia
 
-### 3. Problemas de Arduino
-- Verificar alimentación
-- Comprobar conexión WiFi
-- Revisar monitor serial
-- Verificar firmware
+### Problemas de Arduino
+1. Fallo de conexión WiFi:
+   - Revisar credenciales
+   - Verificar disponibilidad de red
+   - Revisar fuente de alimentación
+2. Servo no responde:
+   - Revisar fuente de alimentación
+   - Verificar conexiones
+   - Revisar límites del servo
+3. Fallo de actualización OTA:
+   - Revisar estabilidad de red
+   - Verificar tamaño de firmware
+   - Revisar memoria Arduino
 
 ## Apagado Seguro
-
-1. Detener el control del joystick (presionar B)
-2. Cerrar el visor de video (presionar Q)
-3. Detener el video stream (Ctrl+C)
-4. Apagar el Arduino
-5. Apagar el Jetson
+1. Detener control de joystick (Ctrl+C)
+2. Detener visor de video (Ctrl+C)
+3. Detener streamer de video en Jetson (Ctrl+C)
+4. Apagar Arduino
+5. Apagar Jetson
+6. Desconectar fuente de alimentación
 
 ## Notas Importantes
 
 1. **Seguridad**
-   - Mantener las credenciales WiFi seguras
-   - No exponer el sistema a redes públicas
-   - Mantener el firmware actualizado
+   - Cambiar credenciales WiFi por defecto
+   - Usar direcciones IP estáticas
+   - Mantener firmware actualizado
+   - Monitorear tráfico de red
+   - Asegurar actualizaciones OTA
 
 2. **Rendimiento**
-   - Monitorear el uso de CPU
-   - Verificar la latencia de red
-   - Ajustar calidad de video si es necesario
+   - Mantener línea de vista
+   - Monitorear niveles de batería
+   - Revisar latencia de red
+   - Monitorear recursos del sistema
+   - Mantenimiento regular
 
 3. **Mantenimiento**
-   - Limpiar la cámara regularmente
-   - Verificar conexiones
-   - Actualizar software
-   - Hacer backup de configuraciones
-
-## Tareas de Mantenimiento
-
-### Diarias
-- Verificar conexiones
-- Limpiar lente de cámara
-- Probar controles básicos
-
-### Semanales
-- Actualizar software
-- Verificar logs
-- Probar todas las funciones
-
-### Mensuales
-- Revisar hardware
-- Actualizar firmware
-- Hacer backup de datos 
+   - Diario:
+     - Revisar conexiones
+     - Verificar enfoque de cámara
+     - Probar controles
+     - Revisar niveles de batería
+   - Semanal:
+     - Actualizar firmware
+     - Limpiar lente de cámara
+     - Revisar operación del servo
+     - Verificar configuración de red
+   - Mensual:
+     - Prueba completa del sistema
+     - Actualizar documentación
+     - Respaldo de configuraciones
+     - Revisar desgaste de hardware 
