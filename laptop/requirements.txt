@@ -1,0 +1,6 @@
+numpy>=1.21.0
+opencv-python>=4.5.3
+inputs>=0.5
+python-joystick>=0.0.1
+pygame>=2.0.1
+python-dotenv>=0.19.0 
